@@ -9,6 +9,11 @@ type MemberMetaData struct {
 	Offset uint32
 }
 
+type StructMetaData struct {
+	Width      uint32
+	Members    []MemberMetaData
+	MembersMap map[string]*MemberMetaData
+}
 
 //GetFields returns a bitfield member as specified by the provided offset and width
 func GetField(inputSlice []byte,offset int, width int) (outputSlice []byte) {
@@ -80,7 +85,9 @@ func getBytesSize(bitSize int) (bytesSize int) {
 func ReverseMembers(inputBytes []byte,  metadataList []MemberMetaData) (reversed []byte) {
 
 	fieldsMatrix := GetAllFieldsList(inputBytes, metadataList)
+
 	reversedMetadata := ReverseMemberMetadataList(metadataList)
+
 	reversedMatrix := reverseMembersMatrix(fieldsMatrix)
 	reversed = PutAllFields(reversedMatrix,reversedMetadata)
 	return reversed
