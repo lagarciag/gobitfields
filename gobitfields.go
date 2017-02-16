@@ -17,7 +17,7 @@ type StructMetaData struct {
 
 //GetFields returns a bitfield member as specified by the provided offset and width
 func GetField(inputSlice []byte,offset int, width int) (outputSlice []byte) {
-	bytesWidth := getBytesSize(width)
+	bytesWidth := GetBytesSize(width)
 	tmpField , _ := bitwisebytes.ShiftRight(inputSlice,uint(offset))
 	outputSlice = tmpField[0:bytesWidth]
 	maskSlice := bitwisebytes.MakeMask(uint(len(outputSlice)),uint(width),0)
@@ -50,7 +50,7 @@ func PutAllFields(inputMatrix [][]byte,metadataList []MemberMetaData) (outputSli
 	for _ , member := range metadataList {
 		size += int(member.Width)
 	}
-	bytesSize := getBytesSize(size)
+	bytesSize := GetBytesSize(size)
 
 	outputSlice = make([]byte,bytesSize)
 
@@ -72,7 +72,7 @@ func GetAllFieldsList(inputSlice []byte, metadataList []MemberMetaData) (outputM
 	return outputMatrix
 }
 
-func getBytesSize(bitSize int) (bytesSize int) {
+func GetBytesSize(bitSize int) (bytesSize int) {
 	bytesSize = bitSize / 8
 	mod := bitSize % 8
 	if mod != 0 {
