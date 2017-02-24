@@ -61,6 +61,19 @@ func TestGetField(t *testing.T) {
 	}
 }
 
+
+func TestGetFieldLong(t *testing.T) {
+	inputSlice := []byte{204, 160, 85, 78, 54, 69, 143, 176, 244, 1}
+
+	field1 := gobitfields.GetField(inputSlice,38,15)
+	t.Log("field 1: ",field1)
+
+
+}
+
+
+//[204 160 85 78 54 69 143 176 244 1]
+
 func TestGetFieldSlice(t *testing.T) {
 
 	bitfield := []byte{1,1,1,2,3,3,3,3,3,3,3,3,3,3,3,3}

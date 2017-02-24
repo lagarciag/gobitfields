@@ -7,6 +7,7 @@ import (
 type MemberMetaData struct {
 	Width  uint32
 	Offset uint32
+	Name string
 }
 
 type StructMetaData struct {
