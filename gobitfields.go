@@ -121,6 +121,7 @@ func ReverseMemberMetadataList(input []MemberMetaData) (output []MemberMetaData)
 		oldData := input[(length -1) - i]
 		newData.Offset = uint32(offset)
 		newData.Width = oldData.Width
+		newData.Name = oldData.Name
 		offset = offset + int(oldData.Width)
 		output[i] = newData
 
