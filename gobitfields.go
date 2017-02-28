@@ -2,6 +2,8 @@ package gobitfields
 
 import (
 	"github.com/lagarciag/bitwisebytes"
+//	"math"
+	//"fmt"
 )
 
 type MemberMetaData struct {
@@ -19,18 +21,46 @@ type StructMetaData struct {
 //GetFields returns a bitfield member as specified by the provided offset and width
 func GetField(inputSlice []byte,offset int, width int) (outputSlice []byte) {
 	bytesWidth := GetBytesSize(width)
-	tmpField , _ := bitwisebytes.ShiftRight(inputSlice,uint(offset))
-	outputSlice = tmpField[0:bytesWidth]
-	maskSlice := bitwisebytes.MakeMask(uint(len(outputSlice)),uint(width),0)
-	err := bitwisebytes.And(outputSlice,maskSlice)
+	smallShift := offset % 8
+	offSetByte := offset / 8
+
+
+	byteStart := offSetByte
+	byteEnd := offSetByte + bytesWidth
+
+	if smallShift > 0 {
+		byteEnd++
+	}
+
+	tmpSlice := inputSlice[byteStart:byteEnd]
+	//fmt.Println("GET FIELD:", tmpSlice)
+
+	outputSlice , err  := bitwisebytes.ShiftRight(tmpSlice,uint(smallShift))
 	if err != nil {
 		panic(err.Error())
 	}
-	return outputSlice
+	return outputSlice[0:bytesWidth]
 }
 
 //PutField
 func PutField(destSlice []byte, inputSlice []byte,offset int, width int) {
+
+	smallShift := offset % 8
+
+	smallShiftedSlice , err := bitwisebytes.ShiftLeft(inputSlice,uint(smallShift))
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	offSetByte := offset / 8
+
+	for _ , aByte := range smallShiftedSlice {
+		destSlice[offSetByte] = destSlice[offSetByte] | aByte
+		offSetByte++
+	}
+
+	/*
 	tmpSlice := make([]byte,len(destSlice))
 
 	for i , aByte := range inputSlice {
@@ -42,7 +72,9 @@ func PutField(destSlice []byte, inputSlice []byte,offset int, width int) {
 		panic(err.Error())
 	}
 
+
 	bitwisebytes.Or(destSlice,tmpSlice2)
+	*/
 }
 
 
