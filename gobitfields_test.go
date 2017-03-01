@@ -9,6 +9,7 @@ import (
 	"github.com/lagarciag/gobitfields"
 	"encoding/binary"
 	"github.com/lagarciag/bitwisebytes"
+
 )
 
 func TestMain(t *testing.M) {
@@ -64,10 +65,28 @@ func TestGetField(t *testing.T) {
 }
 
 
+func TestGetfields4(t *testing.T) {
+	inputSlice := []byte{50, 59, 0}
+	out := gobitfields.GetField(inputSlice,0,1)
+	t.Log("input slice: ", inputSlice)
+	t.Log("result: ", out)
+
+	if out[0] != 0 {
+		t.Error("mismatch: ", out[0])
+	}
+}
+
+
+
 func TestGetFieldLong(t *testing.T) {
 	//inputSlice := []byte{204, 160, 85, 78, 54, 69, 143, 176, 244, 1}
 	inputSlice := []byte{12, 168, 204, 14, 64, 213, 0, 200, 212, 0}
 	field1 := gobitfields.GetField(inputSlice,57,16)
+
+	if field1[0] != 100 || field1[1] != 106 {
+		t.Error("mismatch: ", field1)
+	}
+
 	t.Log("field 1: ",field1)
 
 }
@@ -113,16 +132,6 @@ func TestReverseFields(t *testing.T) {
 
 }
 
-
-func TestReverseMembers(t *testing.T) {
-
-	inputslice := []byte{1,2,3,4,5,6}
-	outpuslice := gobitfields.ReverseBytes(inputslice)
-
-	t.Log(outpuslice)
-
-}
-
 func TestPutfields(t *testing.T) {
 	inputSlice := []byte{12,168,204,14,64,213,0,0,0,0}
 
@@ -130,8 +139,13 @@ func TestPutfields(t *testing.T) {
 
 	gobitfields.PutField(inputSlice,toPutSlice,57,16)
 
-	//[12 168 204 14 64 213 0 200 212 0]
+	expected := []byte{12, 168, 204, 14, 64, 213, 0, 200, 212, 0}
 
+	for i , aByte := range expected {
+		if inputSlice[i] != aByte {
+			t.Error("mismatch: ", i, aByte)
+		}
+	}
 
 
 	t.Log("result: ", inputSlice)
@@ -169,30 +183,20 @@ func TestGetfields3(t *testing.T) {
 }
 
 
-func TestGetfields4(t *testing.T) {
-	inputSlice := []byte{50, 59, 0}
-
-	out := gobitfields.GetField(inputSlice,4,2)
-	t.Log("input slice: ", inputSlice)
-	t.Log("result: ", out)
-
-
-	//[12 168 204 14 64 213 0 200 212 0]
-}
-
 //140 1 149 217 1 168 26 0 153 218 74 59 146 44 31 47 163 0 92 44 123 160 210 22 64 84 3 62]
 
 
 
 func TestGetfields5(t *testing.T) {
-	inputSlice := []byte{140, 1, 149, 217, 1, 168, 26, 0, 153, 218, 74, 59, 146, 44, 31, 47, 163, 0, 92, 44, 123, 160, 210, 22, 64, 84, 3, 62}
+	inputSlice := []byte{140, 1, 149, 217, 1, 168, 26, 0, 153, 218, 74, 59, 146, 44, 31, 47, 163, 0, 92, 44, 123, 160, 210, 22, 6, 84, 3, 62}
+	//inputSlice := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	offset := 142
 	width := 55
 	bytesWidth := gobitfields.GetBytesSize(width)
 
 	out := gobitfields.GetField(inputSlice,offset,width)
 
-	if len(out) != bytesWidth + 1 {
+	if len(out) != bytesWidth {
 		t.Error("Bad size")
 	}
 
@@ -214,6 +218,12 @@ func TestGetfields5(t *testing.T) {
 	t.Log("result: ", out)
 	t.Log("aWord: ", aword)
 	t.Log("gold:",  putTmpField)
+
+	for i , aByte := range out {
+		if putTmpField[i] != aByte {
+			t.Error("mismatch: ", i, aByte, putTmpField[i])
+		}
+	}
 
 	//[12 168 204 14 64 213 0 200 212 0]
 }
@@ -270,13 +280,17 @@ func TestGetfields6(t *testing.T) {
 	t.Log("input slice: ", inputSlice)
 
 	t.Log("aWord: ", aword)
-	//[12 168 204 14 64 213 0 200 212 0]
+
+	if aword != putWord {
+		t.Error("mismatch: ", aword, putWord)
+	}
+
 }
 
 
 
 func TestGetfields7(t *testing.T) {
-	inputSlice := []byte{140, 1, 149, 217, 1, 168, 26, 0, 153, 218, 74, 59, 146, 44, 31, 47, 163, 0, 92, 44, 123, 160, 210, 22, 64, 84, 3, 62}
+	inputSlice := []byte{140, 1, 149, 217, 1, 168, 26, 0, 153, 218, 74, 59, 146, 44, 31, 47, 163, 0, 92, 44, 123, 160, 210, 22, 6, 84, 3, 62}
 	t.Log("inputSlice: ", inputSlice)
 
 	offset := 142
@@ -311,4 +325,86 @@ func TestGetfields7(t *testing.T) {
 
 	t.Log("aWord: ", aword)
 	//[12 168 204 14 64 213 0 200 212 0]
+}
+
+
+
+func TestGetfields8(t *testing.T) {
+	inputSlice := []byte{140, 1, 149, 217, 1, 168, 26, 0, 153, 218, 74, 59, 146, 44, 31, 47, 163, 0, 92, 44, 123, 160, 210, 22, 6, 84, 3, 62}
+	emptySlice := []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	offset := 142
+	width := 55
+	bytesWidth := gobitfields.GetBytesSize(width)
+
+	putTmpField := make([]byte,8)
+	binary.LittleEndian.PutUint64(putTmpField,6855775006536048)
+
+	gobitfields.PutField(emptySlice,putTmpField[0:bytesWidth],offset,width)
+
+	t.Logf("%-3v", inputSlice)
+	t.Logf("%-3v", emptySlice)
+
+	getSlice := gobitfields.GetField(emptySlice,offset,width)
+
+	t.Logf("getSlice %-3v", getSlice)
+	t.Logf("putTmpFi %-3v", putTmpField)
+	t.Logf("putTmpFi %-3v", putTmpField[0:bytesWidth])
+
+
+	out := gobitfields.GetField(inputSlice,offset,width)
+
+	if len(out) != bytesWidth {
+		t.Error("Bad size")
+	}
+
+	tmpField := make([]byte, 8)
+	for  i, _ := range tmpField {
+		tmpField[i ] = 0
+	}
+	for i , val := range out  {
+		tmpField[i] = val
+	}
+
+	aword := binary.LittleEndian.Uint64(tmpField)
+	binary.LittleEndian.PutUint64(putTmpField,6855775006536048)
+
+	t.Log("input slice: ", inputSlice)
+	t.Log("result: ", out)
+	t.Log("aWord: ", aword)
+	t.Log("gold:",  putTmpField)
+
+	//[12 168 204 14 64 213 0 200 212 0]
+}
+
+
+
+func TestPutIn1ByteDestination(t *testing.T) {
+
+	destSlice := []byte{0}
+	field := []byte{1}
+	offset := 2
+	width := 1
+
+	gobitfields.PutField(destSlice,field,offset,width)
+
+	if destSlice[0] != 4 {
+		t.Error(destSlice)
+	}
+
+	t.Log(destSlice)
+
+}
+
+
+func TestPutIn2ByteDestination(t *testing.T) {
+
+	destSlice := []byte{179 , 3, 0}
+	field := []byte{176,3}
+	offset := 10
+	width := 10
+
+	gobitfields.PutField(destSlice,field,offset,width)
+
+	t.Log(destSlice)
+
 }

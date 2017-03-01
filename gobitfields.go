@@ -2,8 +2,8 @@ package gobitfields
 
 import (
 	"github.com/lagarciag/bitwisebytes"
-//	"math"
-	//"fmt"
+	"math"
+	"fmt"
 )
 
 type MemberMetaData struct {
@@ -20,61 +20,73 @@ type StructMetaData struct {
 
 //GetFields returns a bitfield member as specified by the provided offset and width
 func GetField(inputSlice []byte,offset int, width int) (outputSlice []byte) {
+
+	widthInBytes := GetBytesSize(width)
+	mask := byte(uint(math.Pow(2,float64(width % 8))) -1)
+
+	if (width % 8) ==  0 {
+		mask = 0xFF
+	}
+
+	tmpSlice , err  := bitwisebytes.ShiftRight(inputSlice,uint(offset))
+	if err != nil {
+		panic(err.Error())
+	}
+	outputSlice = tmpSlice[0:widthInBytes]
+	lastByte := len(outputSlice) -1
+	outputSlice[lastByte] = outputSlice[lastByte] & mask
+	return outputSlice
+}
+
+
+//GetFields returns a bitfield member as specified by the provided offset and width
+func GetField2(inputSlice []byte,offset int, width int) (outputSlice []byte) {
 	bytesWidth := GetBytesSize(width)
 	smallShift := offset % 8
 	offSetByte := offset / 8
 
-
 	byteStart := offSetByte
-	byteEnd := offSetByte + bytesWidth
+	byteEnd := offSetByte + bytesWidth - 1
 
 	if smallShift > 0 {
-		byteEnd++
+	//tmpSlice = append(tmpSlice,byte(0))
+//		byteEnd++
 	}
 
 	tmpSlice := inputSlice[byteStart:byteEnd]
-	//fmt.Println("GET FIELD:", tmpSlice)
+
+	fmt.Println("GET FIELD:", tmpSlice)
 
 	outputSlice , err  := bitwisebytes.ShiftRight(tmpSlice,uint(smallShift))
 	if err != nil {
 		panic(err.Error())
 	}
+
+	//mask := byte(uint(math.Pow(2,float64(widthMod8))) -1)
+
+
+//	outputSlice[bytesWidth-1] = outputSlice[bytesWidth-1] & mask
 	return outputSlice[0:bytesWidth]
 }
 
 //PutField
 func PutField(destSlice []byte, inputSlice []byte,offset int, width int) {
-
-	smallShift := offset % 8
-
-	smallShiftedSlice , err := bitwisebytes.ShiftLeft(inputSlice,uint(smallShift))
-
-	if err != nil {
-		panic(err.Error())
-	}
-
-	offSetByte := offset / 8
-
-	for _ , aByte := range smallShiftedSlice {
-		destSlice[offSetByte] = destSlice[offSetByte] | aByte
-		offSetByte++
-	}
-
-	/*
-	tmpSlice := make([]byte,len(destSlice))
+	tmpSlice := make([]byte, len(destSlice))
 
 	for i , aByte := range inputSlice {
 		tmpSlice[i] = aByte
 	}
 
-	tmpSlice2, err := bitwisebytes.ShiftLeft(tmpSlice,uint(offset))
+	smallShiftedSlice , err := bitwisebytes.ShiftLeft(tmpSlice,uint(offset))
+
 	if err != nil {
 		panic(err.Error())
 	}
 
+	for i , aByte := range smallShiftedSlice {
+		destSlice[i] = destSlice[i] | aByte
+	}
 
-	bitwisebytes.Or(destSlice,tmpSlice2)
-	*/
 }
 
 
