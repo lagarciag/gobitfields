@@ -4,7 +4,7 @@ package gobitfields_test
 
 import (
 	"testing"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"github.com/lagarciag/gobitfields"
 	"encoding/binary"
