@@ -4,7 +4,6 @@ package gobitfields_test
 
 import (
 	"testing"
-	log "github.com/sirupsen/logrus"
 	"os"
 	"github.com/lagarciag/gobitfields"
 	"encoding/binary"
@@ -13,15 +12,8 @@ import (
 )
 
 func TestMain(t *testing.M) {
-	log.SetLevel(log.DebugLevel)
-	formatter := &log.TextFormatter{}
-	formatter.ForceColors = true
-	formatter.DisableTimestamp = true
-	log.SetFormatter(formatter)
 	v := t.Run()
-
 	os.Exit(v)
-
 }
 
 func TestGetField(t *testing.T) {
